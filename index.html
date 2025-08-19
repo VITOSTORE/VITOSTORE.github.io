@@ -1,0 +1,185 @@
+<?php
+// تضمين ملف الاتصال بقاعدة البيانات
+require_once "config.php";
+
+// استعلام لجلب المنتجات التي "وصلت حديثًا" (بحد أقصى 4 منتجات)
+$sql_new_arrivals = "SELECT * FROM products WHERE is_new_arrival = 1 ORDER BY created_at DESC LIMIT 4";
+$result_new_arrivals = mysqli_query($link, $sql_new_arrivals);
+
+// استعلام لجلب المنتجات "الأكثر مبيعًا" (بحد أقصى 4 منتجات)
+$sql_best_sellers = "SELECT * FROM products WHERE is_best_seller = 1 LIMIT 4";
+$result_best_sellers = mysqli_query($link, $sql_best_sellers);
+?>
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VITO STORE | المتجر الرسمي</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700&display=swap" rel="stylesheet">
+
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <header class="header" id="header">
+        <nav class="nav container">
+            <a href="#" class="nav__logo">VITO</a>
+
+            <div class="nav__menu" id="nav-menu">
+                <ul class="nav__list">
+                    <li class="nav__item">
+                        <a href="#home" class="nav__link active-link">
+                            <i class='bx bx-home-alt-2'></i>
+                            <span>الرئيسية</span>
+                        </a>
+                    </li>
+                    <li class="nav__item">
+                        <a href="products.html" class="nav__link">
+                            <i class='bx bx-shopping-bag'></i>
+                            <span>المنتجات</span>
+                        </a>
+                    </li>
+                    <li class="nav__item">
+                        <a href="bestsellers.html" class="nav__link">
+                            <i class='bx bxs-purchase-tag'></i>
+                            <span>الأكثر مبيعًا</span>
+                        </a>
+                    </li>
+    
+                    <li class="nav__item">
+                        <a href="cart.html" class="nav__link">
+                            <i class='bx bx-cart'></i>
+                            <span>السله</span>
+                        </a>
+                    </li>
+                    
+                     <li class="nav__item">
+                        <a href="#contact" class="nav__link">
+                           <i class='bx bx-phone'></i>
+                           <span>تواصل</span>
+                        </a>
+                      </li>
+                </ul>
+            </div>
+
+            <div class="nav__actions">
+                <i class='bx bx-search nav__icon' id="search-btn"></i>
+                <i class='bx bx-shopping-bag nav__icon' id="cart-btn"></i>
+                <i class='bx bx-user nav__icon' id="login-btn"></i>
+                <i class='bx bx-menu nav__toggle' id="nav-toggle"></i>
+            </div>
+        </nav>
+    </header>
+
+    <main>
+        <section class="hero" id="home">
+            <div class="hero__container container">
+                <div class="hero__data">
+                    <h1 class="hero__title">صيفك يبدأ من هنا</h1>
+                    <p class="hero__description">
+                        اكتشف تشكيلتنا الجديدة من الملابس الصيفية. تصميمات عصرية وجودة لا مثيل لها تنتظرك.
+                    </p>
+                    <a href="#new" class="button">اكتشف الآن <i class='bx bx-left-arrow-alt button__icon'></i></a>
+                </div>
+            </div>
+        </section>
+        
+        <section class="section" id="new">
+            <h2 class="section__title">وصل حديثًا</h2>
+            <div class="products__container container grid">
+                <?php
+                // التحقق من وجود منتجات وصلت حديثًا وعرضها
+                if (mysqli_num_rows($result_new_arrivals) > 0) {
+                    while ($row = mysqli_fetch_assoc($result_new_arrivals)) {
+                        echo '<div class="product__card">';
+                        echo '    <div class="product__image">';
+                        echo '        <a href="single-product.php?id=' . $row['id'] . '"><img src="' . htmlspecialchars($row['image_url']) . '" alt="' . htmlspecialchars($row['name']) . '"></a>';
+                        echo '        <span class="product__tag">جديد</span>';
+                        echo '    </div>';
+                        echo '    <div class="product__data">';
+                        echo '        <h3 class="product__name">' . htmlspecialchars($row['name']) . '</h3>';
+                        echo '        <p class="product__price">' . number_format($row['price'], 2) . ' جنيه</p>';
+                        echo '        <button class="button product__button">';
+                        echo '            <i class="bx bx-cart-add"></i>';
+                        echo '            <span>أضف للسلة</span>';
+                        echo '        </button>';
+                        echo '    </div>';
+                        echo '</div>';
+                    }
+                } else {
+                    echo '<p>لا توجد منتجات جديدة حاليًا.</p>';
+                }
+                ?>
+            </div>
+        </section>
+
+        <section class="section" id="bestsellers">
+            <h2 class="section__title">الأكثر مبيعًا</h2>
+             <div class="products__container container grid">
+                <?php
+                // التحقق من وجود منتجات هي الأكثر مبيعًا وعرضها
+                if (mysqli_num_rows($result_best_sellers) > 0) {
+                    while ($row = mysqli_fetch_assoc($result_best_sellers)) {
+                        echo '<div class="product__card">';
+                        echo '    <div class="product__image">';
+                        echo '        <a href="single-product.php?id=' . $row['id'] . '"><img src="' . htmlspecialchars($row['image_url']) . '" alt="' . htmlspecialchars($row['name']) . '"></a>';
+                        echo '    </div>';
+                        echo '    <div class="product__data">';
+                        echo '        <h3 class="product__name">' . htmlspecialchars($row['name']) . '</h3>';
+                        echo '        <p class="product__price">' . number_format($row['price'], 2) . ' جنيه</p>';
+                        echo '        <button class="button product__button">';
+                        echo '            <i class="bx bx-cart-add"></i>';
+                        echo '            <span>أضف للسلة</span>';
+                        echo '        </button>';
+                        echo '    </div>';
+                        echo '</div>';
+                    }
+                } else {
+                    echo '<p>لا توجد منتجات مميزة حاليًا.</p>';
+                }
+                // إغلاق الاتصال بقاعدة البيانات
+                mysqli_close($link);
+                ?>
+            </div>
+        </section>
+    </main>
+    
+    <footer class="footer section" id="contact">
+        <div class="footer__container container grid">
+            <div class="footer__content">
+                <h3 class="footer__title">VITO STORE</h3>
+                <p class="footer__description">وجهتك الأولى للأناقة العصرية.</p>
+            </div>
+            <div class="footer__content">
+                <h3 class="footer__title">أقسامنا</h3>
+                <ul class="footer__links">
+                    <li><a href="#" class="footer__link">الرجال</a></li>
+                    <li><a href="#" class="footer__link">النساء</a></li>
+                    <li><a href="#" class="footer__link">الأطفال</a></li>
+                </ul>
+            </div>
+            <div class="footer__content">
+                <h3 class="footer__title">تابعنا</h3>
+                <div class="footer__social">
+                    <a href="#" class="footer__social-link"><i class='bx bxl-facebook'></i></a>
+                    <a href="#" class="footer__social-link"><i class='bx bxl-instagram-alt'></i></a>
+                    <a href="#" class="footer__social-link"><i class='bx bxl-twitter'></i></a>
+                </div>
+            </div>
+        </div>
+        <p class="footer__copy">&#169; 2025 VITO STORE. جميع الحقوق محفوظة.</p>
+    </footer>
+
+    <a href="#" class="scrollup" id="scroll-up">
+        <i class='bx bx-up-arrow-alt scrollup__icon'></i>
+    </a>
+
+    <script src="script.js"></script>
+</body>
+</html>
